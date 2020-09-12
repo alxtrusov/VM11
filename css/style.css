@@ -1,0 +1,25 @@
+div {
+    border: solid 2px blueviolet;
+    border-radius: 10px;
+    margin: 1px;
+    padding: 5px;
+}
+
+div p,
+.second {
+    background-color: khaki;
+}
+
+#qwerewt {
+    width: 300px;
+    height: 300px;
+}
+
+.second {
+    border: solid 1px greenyellow;
+    border-radius: 5px;
+}
+
+li:hover {
+    font-size: 24px;
+}
