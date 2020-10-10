@@ -1,84 +1,53 @@
+window.onload = function() {
+    var input = document.getElementById('input');
+    var clear = document.getElementById('clear');
+    var numbers = document.getElementsByClassName('number');
+    var operands = document.getElementsByClassName('operand');
+    var radios = document.getElementsByClassName('numberSystem');
 
-'https://github.com/'
+    var value = 0;
+    var operand;
+    var numberSystem = 10;
+    
+    // переводы в разные системы исчисления
+    for (var i = 0; i < radios.length; i++) {
+        radios[i].addEventListener('click', function() {
+            var number = input.value;
+            number = parseInt(number, numberSystem); // сначала в десятичную
+            numberSystem = this.dataset.system - 0;
+            input.value = number.toString(numberSystem); // потом в ту, в которую надо
+        });
+    }
 
-var rooms = [
-    [
-        'коридор',
-        'Перед тобой дверь в столовую и дверь в аудиторию. Куда пойдешь?',
-        ['налево', 'да', 'направо', 'нет'],
-        [1, 1, 1, 3],
-        null
-    ], [
-        'столовка',
-        'Ты обожрался. Хочешь ещё поесть, или пойдешь учиться?',
-        ['да', 'нет', 'хочуучиться!'],
-        [1, 1, 0],
-        1
-    ], [
-        'аудитория'
-    ], [
-        'туалет'
-    ], [
-        'военкомат'
-    ]
-];
-var step = 0;
-
-function stepTo() {
-    if (step === null) {
-        return;
-    }
-    var room = rooms[step];
-    if (!room) {
-        return;
-    }
-    var answer = document.getElementById('direction').value;
-    document.getElementById('direction').value = '';
-    if (!answer) {
-        return;
-    }
-    answer = answer.toLowerCase().replace(' ', '');
-    var isWayNotFound = true;
-    for (var i = 0; i < room[2].length; i++) {
-        if (answer === room[2][i]) {
-            step = room[3][i];
-            isWayNotFound = false;
-            break;
-        }
-    }
-    if (isWayNotFound) {
-        step = room[4];
-    }
-    printRoomInfo();
-}
-
-function printRoomInfo() {
-    if (step !== null && rooms[step]) {
-        var room = rooms[step];
-        // вывести название комнаты
-        document.getElementById('roomName').innerHTML = room[0];
-        // вывести описание комнаты
-        document.getElementById('roomDescription').innerHTML = room[1];
-        // вывести выходы из комнаты
-        var exits = [];
-        for (var i = 0; i < room[3].length; i++) {
-            var isNameUnique = true;
-            for (var j = 0; j < exits.length; j++) {
-                if (exits[j] === rooms[room[3][i]][0]) {
-                    isNameUnique = false;
-                    break;
-                }
+    // вешаем обработчики на цирфы
+    for (var i = 0; i < numbers.length; i++) {
+        numbers[i].addEventListener('click', function() {
+            if (input.value === '0') {
+                input.value = this.innerHTML;
+            } else {
+                input.value += this.innerHTML;
             }
-            if (isNameUnique) {
-                exits.push(rooms[room[3][i]][0]);
-            }
-        }
-        document.getElementById('exitNames').innerHTML = exits.join(', ');
+        });
     }
-}
+    // вешаем обработчики на операции
+    for (var i = 0; i < operands.length; i++) {
+        operands[i].addEventListener('click', function() {
+            switch (this.innerHTML) {
+                case '+':
+                    value = input.value - 0;
+                    operand = '+';
+                    input.value = 0;
+                break;
+                case '=':
+                    if (operand === '+') {
+                        input.value = value + (input.value - 0);
+                    }
+                break;
+            }
+        });
+    }
 
-var stepToButton = document.getElementById('stepTo');
-stepToButton.addEventListener('click', stepTo);
-
-// start point
-printRoomInfo();
+    clear.addEventListener('click', function() {
+        input.value = 0;
+    });
+};
