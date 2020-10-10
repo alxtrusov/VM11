@@ -5,10 +5,21 @@
         <link href="css/style.css" rel="stylesheet">
     </head>
     <body>
-        <canvas id="canvas" width="300" height="300"></canvas>
+        <!--<canvas id="canvas" width="300" height="300"></canvas>-->
         <div>
             <h1>ЭрпЭгЭшечка!!!</h1>
             <p>Студент! Тебе надо найти еду! И знания. Но лучше еду</p>
+            <div>
+                <p>Ты находишься в:</p>
+                <p id="roomName"></p>
+                <p id="roomDescription"></p>
+                <p>Отсюда можно выйти в:</p>
+                <p id="exitNames"></p>
+            </div>
+            <div>
+                <input id="direction" placeholder="Куда хочешь пойти?">
+            </div>
+            <button id="stepTo">Пойти</button>
         </div>
         <script src="js/main.js"></script>
     </body>
