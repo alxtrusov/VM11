@@ -1,53 +1,49 @@
-window.onload = function() {
-    var input = document.getElementById('input');
-    var clear = document.getElementById('clear');
-    var numbers = document.getElementsByClassName('number');
-    var operands = document.getElementsByClassName('operand');
-    var radios = document.getElementsByClassName('numberSystem');
+function f(x) {
+    return x * x - 4;
+}
 
-    var value = 0;
-    var operand;
-    var numberSystem = 10;
-    
-    // переводы в разные системы исчисления
-    for (var i = 0; i < radios.length; i++) {
-        radios[i].addEventListener('click', function() {
-            var number = input.value;
-            number = parseInt(number, numberSystem); // сначала в десятичную
-            numberSystem = this.dataset.system - 0;
-            input.value = number.toString(numberSystem); // потом в ту, в которую надо
-        });
+function g(x) {
+    return Math.cos(x);
+}
+
+window.onload = function () {
+    var WINDOW = {
+        LEFT: -10,
+        BOTTOM: -10,
+        WIDTH: 20,
+        HEIGHT: 20
+    };
+
+    var graph = new Graph({ id: 'canvas', width: 800, height: 800, WINDOW: WINDOW });
+
+    function printOXY() {
+        // Ox
+        graph.line(WINDOW.LEFT, 0, WINDOW.WIDTH + WINDOW.LEFT, 0, 'black', 1);
+        // Oy
+        graph.line(0, WINDOW.BOTTOM, 0, WINDOW.HEIGHT + WINDOW.BOTTOM, 'black', 1);
+        for (var i = 1; i < WINDOW.WIDTH + WINDOW.LEFT; i++) {
+            graph.line(i, 0.1, i, -0.1, 'black');
+        }
+        for (var i = -1; i > WINDOW.LEFT; i--) {
+            graph.line(i, 0.1, i, -0.1, 'black');
+        }
     }
 
-    // вешаем обработчики на цирфы
-    for (var i = 0; i < numbers.length; i++) {
-        numbers[i].addEventListener('click', function() {
-            if (input.value === '0') {
-                input.value = this.innerHTML;
-            } else {
-                input.value += this.innerHTML;
-            }
-        });
-    }
-    // вешаем обработчики на операции
-    for (var i = 0; i < operands.length; i++) {
-        operands[i].addEventListener('click', function() {
-            switch (this.innerHTML) {
-                case '+':
-                    value = input.value - 0;
-                    operand = '+';
-                    input.value = 0;
-                break;
-                case '=':
-                    if (operand === '+') {
-                        input.value = value + (input.value - 0);
-                    }
-                break;
-            }
-        });
+    function printFunction(f) {
+        var x = WINDOW.LEFT;
+        var dx = WINDOW.WIDTH / 1000;
+        while (x < WINDOW.WIDTH + WINDOW.LEFT) {
+            graph.line(x, f(x), x + dx, f(x + dx));
+            x += dx;
+        }
     }
 
-    clear.addEventListener('click', function() {
-        input.value = 0;
-    });
-};
+    function render() {
+        graph.clear();
+        printFunction(f);
+        printFunction(g);
+        printOXY();
+        graph.text(1, 1, 'Вася');
+    }
+    render();
+}
