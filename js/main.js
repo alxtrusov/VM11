@@ -3,18 +3,18 @@ var graphs = [
         func: function (x) {
             return Math.sin(x);
         },
-        color: 'red', 
-        width: 1, 
-        name: 'y = sin x', 
+        color: 'red',
+        width: 1,
+        name: 'y = sin x',
         nameCoor: -8
     },
     {
         func: function (x) {
-            return Math.cos(x)*x/2;
-        }, 
-        color: 'blue', 
-        width: 2, 
-        name: 'y = cos x', 
+            return Math.cos(x) * x / 2;
+        },
+        color: '#00f',
+        width: 2,
+        name: 'y = cos x',
         nameCoor: 2.3
     }
 ]
@@ -27,10 +27,22 @@ window.onload = function () {
         HEIGHT: 20
     };
 
-    var graph = new Graph({ id: 'canvas', width: 800, height: 800, WINDOW: WINDOW, callBacks: { wheel, mouseup, mousedown, mousemove, mouseleave } });
+    var graph = new Graph({
+        id: 'canvas',
+        width: 800,
+        height: 800,
+        WINDOW: WINDOW,
+        callbacks: { wheel, mouseup, mousedown, mousemove, mouseleave }
+    });
+    var ui = new UI({ callbacks: { enterFunction } });
 
     var zoomStep = 0.2;
     var canScroll = false;
+
+    function enterFunction(f) {
+        graphs[0].func = f;
+        render();
+    }
 
     function wheel(event) {
         var delta = (event.wheelDelta > 0) ? - zoomStep : zoomStep;
@@ -64,7 +76,9 @@ window.onload = function () {
         var x = WINDOW.LEFT;
         var dx = WINDOW.WIDTH / 1000;
         while (x < WINDOW.WIDTH + WINDOW.LEFT) {
-            graph.line(x, f(x), x + dx, f(x + dx), color, width);
+            try {
+                graph.line(x, f(x), x + dx, f(x + dx), color, width);
+            } catch (e) { }
             x += dx;
         }
     }
@@ -86,7 +100,7 @@ window.onload = function () {
         for (var i = 1; i < WINDOW.WIDTH + WINDOW.LEFT; i++) {
             graph.line(i, WINDOW.HEIGHT, i, WINDOW.BOTTOM, SEC_COLOR, 1);
             if (i % 5 == 0) {
-                graph.line(i, -size*2, i, size*2, MAIN_COLOR, 2);
+                graph.line(i, -size * 2, i, size * 2, MAIN_COLOR, 2);
             } else {
                 graph.line(i, -size, i, size, MAIN_COLOR, 1);
             }
@@ -94,7 +108,7 @@ window.onload = function () {
         for (var i = -1; i > WINDOW.LEFT; i--) {
             graph.line(i, WINDOW.HEIGHT, i, WINDOW.BOTTOM, SEC_COLOR, 1);
             if (i % -5 == 0) {
-                graph.line(i, -size*2, i, size*2, MAIN_COLOR, 2);
+                graph.line(i, -size * 2, i, size * 2, MAIN_COLOR, 2);
             } else {
                 graph.line(i, -size, i, size, MAIN_COLOR, 1);
             }
@@ -102,7 +116,7 @@ window.onload = function () {
         for (var i = 1; i < WINDOW.HEIGHT + WINDOW.BOTTOM; i++) {
             graph.line(WINDOW.LEFT, i, WINDOW.WIDTH, i, SEC_COLOR, 1);
             if (i % 5 == 0) {
-                graph.line(-size*2, i, size*2, i, MAIN_COLOR, 2);
+                graph.line(-size * 2, i, size * 2, i, MAIN_COLOR, 2);
             } else {
                 graph.line(-size, i, size, i, MAIN_COLOR, 1);
             }
@@ -110,7 +124,7 @@ window.onload = function () {
         for (var i = -1; i > WINDOW.BOTTOM; i--) {
             graph.line(WINDOW.LEFT, i, WINDOW.WIDTH, i, SEC_COLOR, 1);
             if (i % -5 == 0) {
-                graph.line(-size*2, i, size*2, i, MAIN_COLOR, 2);
+                graph.line(-size * 2, i, size * 2, i, MAIN_COLOR, 2);
             } else {
                 graph.line(-size, i, size, i, MAIN_COLOR, 1);
             }
@@ -133,24 +147,23 @@ window.onload = function () {
         graph.number('0', 0, 0, '0');
     }
 
-    function getZero(f, a, b) {
-        var c;
-        var E = 0.001;
-        while (Math.abs(f(a) - f(b)) >= E) {
-            if (f(a) * f(b) > 0) {
-                return false;
-            }
-            c = (a + b) / 2;
-            if (f(a) * f(c) <= 0) {
-                b = c;
-                c = (a + b) / 2;
-            }
-            if (f(c) * f(b) <= 0) {
-                a = c;
-                c = (a + b) / 2;
-            }
+    function getZero(f, a, b, eps) {
+        if (isNaN(f(a) - 0) || isNaN(f(b) - 0)) {
+            return null;
         }
-        return a;
+        if (f(a) * f(b) > 0) {
+            return null;
+        }
+        if (Math.abs(a - b) < eps) {
+            return (a + b) / 2;
+        }
+        var half = (a + b) / 2;
+        if (f(a) * f(half) <= 0) {
+            return getZero(f, a, half, eps);
+        }
+        if (f(half) * f(b) <= 0) {
+            return getZero(f, half, b, eps);
+        }
     }
 
     function render() {
@@ -159,19 +172,15 @@ window.onload = function () {
         for (var i = 0; i < graphs.length; i++) {
             printFunction(graphs[i].func, graphs[i].color, graphs[i].width);
             graph.printFuncNames(graphs[i].name, graphs[i].nameCoor, graphs[i].func, graphs[i].color);
-            /*var a, b;
-            a = WINDOW.LEFT;
-            b = a + 1;
-            while (b <= WINDOW.WIDTH + WINDOW.LEFT) {
-                if (getZero(graphs[i].func, a, b) != false) {
-                    x = getZero(graphs[i].func, a, b);
-                }
-                graph.point(x, 0, graphs[i].color, 5);
-                a = b;
-                b += 1;
-            }*/
         }
         printNumbers();
+        // нарисовать ноль
+        var x = getZero(graphs[0].func, 1, 4, 0.0001);
+        if (x !== null) {
+            // нарисовать асимптоты 
+            // график другим цветом
+            graph.point(x, 0, 3); // нарисовать точку
+        }
     }
 
     render();
