@@ -1,0 +1,13 @@
+.over {
+    position: absolute;
+    background-color: blueviolet;
+    top: 50px;
+    left: 50px;
+    width: 150px;
+    height: 250px;
+    opacity: 0.6;
+}
+
+.hide {
+    display: none;
+}

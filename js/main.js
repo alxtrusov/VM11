@@ -1,23 +1,4 @@
-var graphs = [
-    {
-        func: function (x) {
-            return Math.sin(x);
-        },
-        color: 'red',
-        width: 1,
-        name: 'y = sin x',
-        nameCoor: -8
-    },
-    {
-        func: function (x) {
-            return Math.cos(x) * x / 2;
-        },
-        color: '#00f',
-        width: 2,
-        name: 'y = cos x',
-        nameCoor: 2.3
-    }
-]
+var graphs = [];
 
 window.onload = function () {
     var WINDOW = {
@@ -34,13 +15,26 @@ window.onload = function () {
         WINDOW: WINDOW,
         callbacks: { wheel, mouseup, mousedown, mousemove, mouseleave }
     });
-    var ui = new UI({ callbacks: { enterFunction } });
+    var ui = new UI({ 
+        callbacks: { 
+            enterFunction,
+            delFunction
+        }
+    });
 
     var zoomStep = 0.2;
     var canScroll = false;
 
-    function enterFunction(f) {
-        graphs[0].func = f;
+    function enterFunction(f, num) {
+        graphs[num] = {
+            f,
+            color: '#f23',
+            width: 3
+        };
+        render();
+    }
+    function delFunction(num) {
+        graphs[num] = null;
         render();
     }
 
@@ -74,7 +68,7 @@ window.onload = function () {
 
     function printFunction(f, color, width) {
         var x = WINDOW.LEFT;
-        var dx = WINDOW.WIDTH / 1000;
+        var dx = WINDOW.WIDTH / 300;
         while (x < WINDOW.WIDTH + WINDOW.LEFT) {
             try {
                 graph.line(x, f(x), x + dx, f(x + dx), color, width);
@@ -170,17 +164,19 @@ window.onload = function () {
         graph.clear();
         printOXY();
         for (var i = 0; i < graphs.length; i++) {
-            printFunction(graphs[i].func, graphs[i].color, graphs[i].width);
-            graph.printFuncNames(graphs[i].name, graphs[i].nameCoor, graphs[i].func, graphs[i].color);
+            if (graphs[i]) {
+                printFunction(graphs[i].f, graphs[i].color, graphs[i].width);
+                graph.printFuncNames(graphs[i].name, graphs[i].nameCoor, graphs[i].f, graphs[i].color);
+            }
         }
         printNumbers();
         // нарисовать ноль
-        var x = getZero(graphs[0].func, 1, 4, 0.0001);
+        /*var x = getZero(graphs[0].f, 1, 4, 0.0001);
         if (x !== null) {
             // нарисовать асимптоты 
             // график другим цветом
             graph.point(x, 0, 3); // нарисовать точку
-        }
+        }*/
     }
 
     render();
