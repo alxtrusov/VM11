@@ -1,0 +1,1 @@
+Template.prototype.calculatorTemplate = () => 'Это калькулятор';
