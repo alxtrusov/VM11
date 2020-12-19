@@ -4,28 +4,32 @@ function tan(x) { return Math.tan(x); }
 function abs(x) { return Math.abs(x); }
 function sqrt(x) { return Math.sqrt(x); }
 
-function UI(options) {
-    var callbacks = options.callbacks;
-    document.getElementById('addFunction').addEventListener('click', addFunction);
-    document.getElementById('showHide').addEventListener('click', showHide);
-    var num = 0;
+class UI {
+    constructor({ callbacks }) {
+        this.callbacks = callbacks;
+        this.num = 0;
+        document.getElementById('addFunction')
+            .addEventListener('click', () => this.addFunction());
+        document.getElementById('showHide')
+            .addEventListener('click', this.showHide);
+    }
 
-    function showHide() {
+    showHide() {
         var div = document.querySelector('.over');
         div.classList.toggle('hide');
     }
 
-    function addFunction() {
+    addFunction() {
         // инпут для функции
         var input = document.createElement('input');
-        input.setAttribute('placeholder', `function №${num}`);
-        input.dataset.num = num;
-        input.addEventListener('keyup', keyup);
+        input.setAttribute('placeholder', `function №${this.num}`);
+        input.dataset.num = this.num;
+        input.addEventListener('keyup', () => this.keyup(input));
         // кнопка для удаления функции
         var button = document.createElement('button');
         button.innerHTML = 'Удалить';
-        button.addEventListener('click', function() {
-            callbacks.delFunction(input.dataset.num);
+        button.addEventListener('click', () => {
+            this.callbacks.delFunction(input.dataset.num);
             divFuncs.removeChild(input);
             divFuncs.removeChild(button);
         });
@@ -33,14 +37,14 @@ function UI(options) {
         var divFuncs = document.getElementById('funcs');
         divFuncs.appendChild(input);
         divFuncs.appendChild(button);
-        num++;
+        this.num++;
     }
 
-    function keyup() {
+    keyup(elem) {
         try {
             var f;
-            eval(`f = function(x) { return ${this.value}; }`);
-            callbacks.enterFunction(f, this.dataset.num);
+            eval(`f = function(x) { return ${elem.value}; }`);
+            this.callbacks.enterFunction(f, elem.dataset.num);
         } catch(e) {
             //console.log(e);
         }
